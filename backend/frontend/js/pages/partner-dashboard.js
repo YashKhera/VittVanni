@@ -31,27 +31,10 @@
     return true;
   }
 
-  function tabsHtml() {
-    var tabs = [["schemes", "partner.tab.schemes"], ["inbox", "partner.tab.inbox"], ["profile", "partner.tab.profile"]];
-    return '<div class="flex gap-2 mb-4">' + tabs.map(function (t) {
-      return '<button class="btn btn-sm flex-1 ' + (tab === t[0] ? "btn-secondary" : "btn-ghost") +
-        '" data-tab="' + t[0] + '">' + I18n.t(t[1]) + "</button>";
-    }).join("") + "</div>";
-  }
-
-  function wireTabs() {
-    document.querySelectorAll("[data-tab]").forEach(function (b) {
-      b.addEventListener("click", function () {
-        var next = b.getAttribute("data-tab");
-        if (profileLocked && next !== "profile") {
-          Notify.warning(I18n.t("partner.profile.incomplete"));
-          return;
-        }
-        if (chatCtl) { chatCtl.destroy(); chatCtl = null; }
-        tab = next;
-        render();
-      });
-    });
+  function currentTab() {
+    var q = window.readQuery ? window.readQuery() : {};
+    if (q.tab === "inbox" || q.tab === "profile") return q.tab;
+    return "schemes";
   }
 
   function profileComplete(p) {
@@ -59,15 +42,15 @@
   }
 
   function render() {
+    tab = currentTab();
     var mount = el("partnerMount");
     mount.innerHTML = '<h2 class="mb-4">' + I18n.t("partner.title") + "</h2>" +
       (profileLocked ? '<div class="card mb-4"><p class="mb-0">' + I18n.t("partner.profile.incomplete") + "</p></div>" : "") +
-      tabsHtml() + '<div id="tabBody"></div>';
-    wireTabs();
+      '<div id="tabBody"></div>';
     if (profileLocked) { renderProfile(); return; }
-    if (tab === "schemes") renderSchemes();
-    else if (tab === "inbox") renderInbox();
-    else renderProfile();
+    if (tab === "inbox") renderInbox();
+    else if (tab === "profile") renderProfile();
+    else renderSchemes();
   }
 
   function renderSchemes() {
@@ -107,9 +90,7 @@
         });
         body.querySelectorAll("[data-view-scheme]").forEach(function (b) {
           b.addEventListener("click", function () {
-            tab = "inbox";
-            render();
-            loadInbox(parseInt(b.getAttribute("data-view-scheme"), 10));
+            window.location.href = "/partner?tab=inbox&scheme=" + b.getAttribute("data-view-scheme");
           });
         });
       });
@@ -121,26 +102,29 @@
     body.innerHTML = '<div class="text-center py-4"><div class="spinner"></div></div>';
     api("/applications" + (schemeId ? "?scheme_id=" + schemeId : "")).then(function (list) {
       inbox = list || [];
+      var head = '<h3 class="mb-3">' + I18n.t("partner.tab.inbox") + "</h3>";
       if (!inbox.length) {
-        body.innerHTML = tabsHtml() + '<p class="text-muted">' + I18n.t("partner.inbox.empty") + "</p>";
-        wireTabs();
+        body.innerHTML = head + '<p class="text-muted">' + I18n.t("partner.inbox.empty") + "</p>";
         return;
       }
-      body.innerHTML = tabsHtml() + inbox.map(function (a) {
+      body.innerHTML = head + inbox.map(function (a) {
         return '<div class="card mb-3"><div class="flex items-center justify-between flex-wrap gap-2"><div><strong>' +
           esc(a.scheme_name) + "</strong><br>" +
           '<span class="text-sm text-muted">' + esc(a.application_no) + "</span></div><div>" +
           Chat.statusPill(a.status) + ' <button class="btn btn-secondary btn-sm" data-app="' + a.id + '">' +
           I18n.t("partner.review") + "</button></div></div></div>";
       }).join("");
-      wireTabs();
       body.querySelectorAll("[data-app]").forEach(function (b) {
         b.addEventListener("click", function () { openApplicant(parseInt(b.getAttribute("data-app"), 10)); });
       });
     }).catch(function (e) { body.innerHTML = '<p class="text-muted">' + esc(e.message) + "</p>"; });
   }
 
-  function renderInbox() { loadInbox(null); }
+  function renderInbox() {
+    var q = window.readQuery ? window.readQuery() : {};
+    var sid = parseInt(q.scheme || "0", 10);
+    loadInbox(sid || null);
+  }
 
   function actionBtn(id, st, key, cls) {
     return '<button class="btn ' + cls + ' btn-sm" data-act="' + st + '" data-id="' + id + '">' + I18n.t(key) + "</button>";
@@ -181,7 +165,7 @@
           : "");
       el("backBtn").addEventListener("click", function () {
         if (chatCtl) { chatCtl.destroy(); chatCtl = null; }
-        render();
+        window.location.href = "/partner?tab=inbox";
       });
       mount.querySelectorAll("[data-act]").forEach(function (b) {
         b.addEventListener("click", function () {
@@ -256,8 +240,12 @@
             Notify.success(I18n.t("common.saved"));
             // Re-check completeness: unlocking the rest of the portal.
             api("/profile").then(function (p) {
-              if (profileComplete(p)) { profileLocked = false; tab = "schemes"; }
-              render();
+              if (profileComplete(p)) {
+                profileLocked = false;
+                window.location.href = "/partner";
+              } else {
+                render();
+              }
             }).catch(function () { render(); });
           })
           .catch(function (e) { Notify.error(e.message); });
@@ -267,13 +255,10 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     if (!guard()) return;
-    var q = window.readQuery ? window.readQuery() : {};
-    if (q.tab === "inbox" || q.tab === "profile" || q.tab === "schemes") tab = q.tab;
     // New and incomplete partners land on the profile first and stay there
     // until org name, phone, state and city are filled.
     api("/profile").then(function (p) {
       profileLocked = !profileComplete(p);
-      if (profileLocked) tab = "profile";
       render();
     }).catch(function () { render(); });
   });
