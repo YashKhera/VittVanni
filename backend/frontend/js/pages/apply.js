@@ -19,10 +19,12 @@
   function stepPartner() {
     var mount = el("applyMount");
     var opts = partners.map(function (p) {
-      var label = p.org_name + " — " + [p.city, p.state].filter(Boolean).join(", ");
+      var where = [p.city, p.state].filter(Boolean).join(", ");
+      var meta = [p.partner_type, where].filter(Boolean).join(" · ");
+      if (p.applications_handled) meta += (meta ? " · " : "") + I18n.t("apply.partner.handled", { n: p.applications_handled });
       return '<label class="partner-pick"><input type="radio" name="partner" value="' + p.partner_id + '">' +
-        '<span><strong>' + esc(p.org_name) + "</strong><br>" +
-        '<span class="text-sm text-muted">' + esc([p.partner_type, p.city, p.state].filter(Boolean).join(" · ")) + "</span>" +
+        '<span><strong>' + esc(p.org_name || I18n.t("apply.partner.unnamed")) + "</strong><br>" +
+        '<span class="text-sm text-muted">' + esc(meta) + "</span>" +
         (p.phone ? '<br><span class="text-sm">' + esc(p.phone) + "</span>" : "") + "</span></label>";
     }).join("");
     mount.innerHTML =

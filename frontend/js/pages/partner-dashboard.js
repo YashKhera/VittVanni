@@ -7,6 +7,7 @@
   var allSchemes = [];
   var inbox = [];
   var chatCtl = null;
+  var profileLocked = false;
 
   function el(id) { return document.getElementById(id); }
   function esc(s) {
@@ -41,17 +42,29 @@
   function wireTabs() {
     document.querySelectorAll("[data-tab]").forEach(function (b) {
       b.addEventListener("click", function () {
+        var next = b.getAttribute("data-tab");
+        if (profileLocked && next !== "profile") {
+          Notify.warning(I18n.t("partner.profile.incomplete"));
+          return;
+        }
         if (chatCtl) { chatCtl.destroy(); chatCtl = null; }
-        tab = b.getAttribute("data-tab");
+        tab = next;
         render();
       });
     });
   }
 
+  function profileComplete(p) {
+    return !!(p && p.org_name && p.phone && p.state && p.city);
+  }
+
   function render() {
     var mount = el("partnerMount");
-    mount.innerHTML = '<h2 class="mb-4">' + I18n.t("partner.title") + "</h2>" + tabsHtml() + '<div id="tabBody"></div>';
+    mount.innerHTML = '<h2 class="mb-4">' + I18n.t("partner.title") + "</h2>" +
+      (profileLocked ? '<div class="card mb-4"><p class="mb-0">' + I18n.t("partner.profile.incomplete") + "</p></div>" : "") +
+      tabsHtml() + '<div id="tabBody"></div>';
     wireTabs();
+    if (profileLocked) { renderProfile(); return; }
     if (tab === "schemes") renderSchemes();
     else if (tab === "inbox") renderInbox();
     else renderProfile();
@@ -212,7 +225,14 @@
           payload[f] = el("pp_" + f).value.trim();
         });
         API.put("/api/partner/profile", payload, Auth.token())
-          .then(function () { Notify.success(I18n.t("common.saved")); })
+          .then(function () {
+            Notify.success(I18n.t("common.saved"));
+            // Re-check completeness: unlocking the rest of the portal.
+            api("/profile").then(function (p) {
+              if (profileComplete(p)) { profileLocked = false; tab = "schemes"; }
+              render();
+            }).catch(function () { render(); });
+          })
           .catch(function (e) { Notify.error(e.message); });
       });
     }).catch(function (e) { body.innerHTML = '<p class="text-muted">' + esc(e.message) + "</p>"; });
@@ -220,6 +240,14 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     if (!guard()) return;
-    render();
+    var q = window.readQuery ? window.readQuery() : {};
+    if (q.tab === "inbox" || q.tab === "profile" || q.tab === "schemes") tab = q.tab;
+    // New and incomplete partners land on the profile first and stay there
+    // until org name, phone, state and city are filled.
+    api("/profile").then(function (p) {
+      profileLocked = !profileComplete(p);
+      if (profileLocked) tab = "profile";
+      render();
+    }).catch(function () { render(); });
   });
 })();

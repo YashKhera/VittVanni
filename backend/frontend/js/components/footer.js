@@ -9,7 +9,7 @@
       var u = window.Auth && Auth.user();
       var isPartner = !!(u && u.role === "partner");
       var links = isPartner
-        ? [["/partner", "nav.partnerDash"], ["/emi-calculator", "nav.calculator"]]
+        ? [["/partner", "nav.partnerDash"], ["/partner?tab=inbox", "partner.tab.inbox"], ["/partner?tab=profile", "partner.tab.profile"]]
         : [["/find-schemes", "nav.questions"], ["/my-schemes", "nav.results"], ["/my-applications", "nav.applications"], ["/emi-calculator", "nav.calculator"], ["/partners", "nav.partners"]];
       if (!loggedIn) links = [["/login", "nav.login"], ["/signup", "nav.register"]];
       el.innerHTML =

@@ -1,11 +1,29 @@
 (function () {
   "use strict";
 
+  // Role gates: partners live in their portal, users in theirs.
+  // Values match body[data-page] on each page.
+  var USER_ONLY = ["questionnaire", "results", "scheme-details", "saved-schemes",
+    "profile", "profile-view", "apply", "my-applications", "partners"];
+  function roleGate() {
+    try {
+      if (!window.Auth || !Auth.isLoggedIn() || !Auth.user()) return;
+      var role = Auth.user().role || "user";
+      var page = (document.body.dataset && document.body.dataset.page) || "";
+      if (role === "partner" && USER_ONLY.indexOf(page) !== -1) {
+        window.location.href = "/partner";
+      } else if (role !== "partner" && page === "partner-dashboard") {
+        window.location.href = "/home";
+      }
+    } catch (e) {}
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     Theme.set(Theme.current());
     I18n.init();
     I18n.apply();
     installAuthLangSwitch();
+    roleGate();
     if (window.Auth && Auth.isLoggedIn() && !Auth.user()) {
       Auth.me().then(function () {
         Navbar.render();

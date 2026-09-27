@@ -75,11 +75,14 @@
 
   function partnerLinks() {
     return [
-      { href: "/home", key: "nav.home" },
       { href: "/partner", key: "nav.partnerDash" },
-      { href: "/emi-calculator", key: "nav.calculator" },
-      { href: "/partners", key: "nav.partners" }
+      { href: "/partner?tab=inbox", key: "partner.tab.inbox" },
+      { href: "/partner?tab=profile", key: "partner.tab.profile" }
     ];
+  }
+
+  function brandName() {
+    return isPartner() ? I18n.t("app.partnerName") : I18n.t("app.name");
   }
 
   window.Navbar = {
@@ -90,11 +93,14 @@
       var loggedIn = Auth.isLoggedIn();
       var currentPath = window.location.pathname || "/";
       if (currentPath === "/") currentPath = "/home";
+      var currentFull = currentPath + (window.location.search || "");
       var items = [{ href: "/home", key: "nav.home" }];
       if (loggedIn) items = isPartner() ? partnerLinks() : userLinks();
 
       var links = items.map(function (item) {
-        var active = currentPath === item.href ? " active" : "";
+        var itemPath = item.href.split("?")[0];
+        var active = (currentPath === itemPath &&
+          (item.href.indexOf("?") === -1 || currentFull === item.href)) ? " active" : "";
         return '<a class="nav-link' + active + '" href="' + item.href + '" data-navlink>' + I18n.t(item.key) + "</a>";
       }).join("");
 
@@ -109,7 +115,7 @@
         '<img src="/assets/logo.svg" alt="VittVanni logo" aria-hidden="true"/>' +
         '<span class="burger" aria-hidden="true"><span></span><span></span><span></span></span>' +
         "</button>" +
-        '<span class="gradient-text" style="font-weight:800">' + I18n.t("app.name") + "</span>" +
+        '<span class="gradient-text" style="font-weight:800">' + brandName() + "</span>" +
         '<span style="flex:1"></span>' +
         '<button class="icon-btn" id="themeToggle" aria-label="Toggle theme">' + (Theme.current() === "dark" ? "☀️" : "🌙") + "</button>" +
         "</div></div>";
@@ -134,7 +140,7 @@
       }
       aside.innerHTML =
         '<div class="sidebar-head">' +
-        '<p class="sidebar-brand gradient-text">' + I18n.t("app.name") + "</p>" +
+        '<p class="sidebar-brand gradient-text">' + brandName() + "</p>" +
         '<div class="sidebar-controls">' +
         '<select id="langSelect" aria-label="Language">' + I18n.optionsHtml() + "</select>" +
         "</div></div>" +

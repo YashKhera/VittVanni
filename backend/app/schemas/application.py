@@ -65,6 +65,7 @@ class PartnerPublic(BaseModel):
     city: str = ""
     state: str = ""
     phone: str = ""
+    applications_handled: int = 0
 
 
 class PartnerProfileUpdate(BaseModel):

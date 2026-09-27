@@ -148,6 +148,15 @@ class ApplicationService:
             )
         out = []
         for p in q.all():
+            handled = (
+                self.db.query(Application)
+                .filter(
+                    Application.partner_id == p.id,
+                    Application.scheme_id == scheme_id,
+                    Application.status != STATUS_REJECTED,
+                )
+                .count()
+            )
             out.append({
                 "partner_id": p.id,
                 "org_name": p.org_name or "",
@@ -155,6 +164,7 @@ class ApplicationService:
                 "city": p.city or "",
                 "state": p.state or "",
                 "phone": p.phone or "",
+                "applications_handled": handled,
             })
         return out
 
