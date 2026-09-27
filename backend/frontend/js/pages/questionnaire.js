@@ -922,6 +922,9 @@
 
   function displayValue(q, val) {
     if (val === undefined || val === null || val === "") return "—";
+    // Answer objects (e.g. the confirmed understanding) are rendered by their
+    // own dedicated block — never stringify them into a row.
+    if (typeof val === "object" && !Array.isArray(val)) return "—";
     if (q.type === "multi") {
       return ([]).concat(val).map(function (v) {
         var o = optionsFor(q).filter(function (x) { return x.value === v; })[0];
@@ -955,7 +958,8 @@
 
     for (var i = 0; i < steps.length; i++) {
       var q = steps[i];
-      if (q.type === "review" || q.type === "textarea") continue;
+      // "review" is this scene; "textarea" and "understand" have dedicated blocks below.
+      if (q.type === "review" || q.type === "textarea" || q.type === "understand") continue;
       var val = answers[q.id];
       var labelText = I18n.loc(q.title);
       html += reviewItem(labelText, displayValue(q, val));
