@@ -3,6 +3,7 @@
   if (!document.body || document.body.dataset.page !== "register") return;
 
   var RESEND_SECONDS = 60;
+  var accountRole = "user";
 
   function el(id) { return document.getElementById(id); }
 
@@ -47,7 +48,7 @@
     var btn = el("sendOtpBtn");
     btn.disabled = true;
     btn.textContent = I18n.t("common.loading");
-    Auth.requestSignupOtp(email)
+    Auth.requestSignupOtp(email, accountRole)
       .then(function () {
         showNote(I18n.t("auth.otp.sentSignup"));
         el("otpCode").focus();
@@ -85,7 +86,7 @@
     btn.disabled = true;
     btn.textContent = I18n.t("common.loading");
 
-    Auth.signupWithOtp(email, code, phone)
+    Auth.signupWithOtp(email, code, phone, accountRole)
       .then(function () {
         Notify.success(I18n.t("auth.welcome", { name: email }));
         Auth.routeAfterAuth();
@@ -107,6 +108,15 @@
     }
     el("sendOtpBtn").addEventListener("click", sendCode);
     form.addEventListener("submit", submitForm);
+    var setRole = function (role) {
+      accountRole = role;
+      var isP = role === "partner";
+      el("tabUser").className = "btn btn-sm flex-1 " + (isP ? "btn-ghost" : "btn-secondary");
+      el("tabPartner").className = "btn btn-sm flex-1 " + (isP ? "btn-secondary" : "btn-ghost");
+      hideError();
+    };
+    el("tabUser").addEventListener("click", function () { setRole("user"); });
+    el("tabPartner").addEventListener("click", function () { setRole("partner"); });
     var codeBox = el("otpCode");
     codeBox.addEventListener("input", function () {
       codeBox.value = codeBox.value.replace(/\D/g, "").slice(0, 6);

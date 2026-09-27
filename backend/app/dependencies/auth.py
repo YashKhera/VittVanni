@@ -32,3 +32,17 @@ def get_current_user(
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
+
+
+def require_role(role: str):
+    """Dependency factory: only users with the given role may pass."""
+
+    def _guard(current_user: User = Depends(get_current_user)) -> User:
+        if (current_user.role or "user") != role:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Partner access only")
+        return current_user
+
+    return _guard
+
+
+require_partner = require_role("partner")

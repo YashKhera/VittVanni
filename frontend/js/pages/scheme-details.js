@@ -71,9 +71,12 @@
 
     var applyHtml = section(I18n.t("details.apply"),
       '<p class="mb-3">' + (scheme.processing_days ? esc(I18n.t("details.processing")) + ": " + esc(scheme.processing_days) + " days" : "") + "</p>" +
+      '<div class="flex gap-2 flex-wrap">' +
+      '<a class="btn btn-primary" href="/apply?sid=' + encodeURIComponent(scheme.id) + '">' + esc(I18n.t("details.applyNow")) + "</a>" +
       (scheme.official_url || scheme.application_url
-        ? '<a class="btn btn-primary" href="' + esc(scheme.official_url || scheme.application_url) + '" target="_blank" rel="noopener">' + esc(I18n.t("details.website")) + "</a>"
-        : '<div class="text-sm">' + (I18n.t("details.contact")) + ": helpline@vittvanni.gov.in</div>"));
+        ? '<a class="btn btn-ghost btn-sm" href="' + esc(scheme.official_url || scheme.application_url) + '" target="_blank" rel="noopener">' + esc(I18n.t("details.website")) + "</a>"
+        : "") +
+      "</div>");
 
     mount.innerHTML =
       '<div class="card mb-4">' +

@@ -31,10 +31,10 @@ def login_with_otp(payload: VerifyOtpRequest, db: Session = Depends(get_db)):
 
 @router.post("/otp/request-signup")
 def request_signup_otp(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    return AuthService(db).request_signup_otp(payload.email, payload.language)
+    return AuthService(db).request_signup_otp(payload.email, payload.language, payload.role)
 
 
 @router.post("/otp/verify-signup", response_model=TokenResponse)
 def signup_with_otp(payload: SignupVerifyRequest, db: Session = Depends(get_db)):
-    result = AuthService(db).verify_signup_otp(payload.email, payload.otp, payload.phone_number)
+    result = AuthService(db).verify_signup_otp(payload.email, payload.otp, payload.phone_number, payload.role)
     return {"access_token": result["access_token"], "token_type": "bearer", "user": result.get("user")}

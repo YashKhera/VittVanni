@@ -20,7 +20,12 @@ def _hash_otp(code: str) -> str:
 
 
 def _to_user_dict(user: User) -> dict:
-    return {"id": user.id, "email": user.email, "phone_number": user.phone_number or ""}
+    return {
+        "id": user.id,
+        "email": user.email,
+        "phone_number": user.phone_number or "",
+        "role": user.role or "user",
+    }
 
 
 class AuthService:
@@ -146,10 +151,14 @@ class AuthService:
         code.used = True
         user.last_login = datetime.utcnow()
         self.db.commit()
-        token = create_access_token(user.id)
+        token = create_access_token(user.id, role=user.role or "user")
         return {"access_token": token, "token_type": "bearer", "user": _to_user_dict(user)}
 
-    def request_signup_otp(self, email: str, language: str | None = "en") -> dict:
+    @staticmethod
+    def _normalize_role(role: str | None) -> str:
+        return "partner" if (role or "").lower() == "partner" else "user"
+
+    def request_signup_otp(self, email: str, language: str | None = "en", role: str | None = "user") -> dict:
         """Passwordless signup step 1: email a single-use code for a new account."""
         normalized = email.lower()
         if self.db.query(User).filter(User.email == normalized).first():
@@ -163,8 +172,10 @@ class AuthService:
             "expires_in_minutes": OTP_EXPIRE_MINUTES,
         }
 
-    def verify_signup_otp(self, email: str, otp: str, phone_number: str = "") -> dict:
+    def verify_signup_otp(self, email: str, otp: str, phone_number: str = "", role: str | None = "user") -> dict:
         """Passwordless signup step 2: verify the code and create the account."""
+        from app.models.partner_profile import PartnerProfile
+
         normalized = email.lower()
         if self.db.query(User).filter(User.email == normalized).first():
             raise HTTPException(
@@ -173,16 +184,21 @@ class AuthService:
             )
         _, code = self._check_otp(normalized, otp, "signup", require_user=False)
         code.used = True
+        user_role = self._normalize_role(role)
         user = User(
             email=normalized,
             # No user-known password exists; store an unusable random secret
             # so the column stays populated and password auth stays dead.
             password_hash=hash_password(secrets.token_hex(32)),
             phone_number=self._normalize_phone(phone_number),
+            role=user_role,
         )
         user.last_login = datetime.utcnow()
         self.db.add(user)
+        self.db.flush()
+        if user_role == "partner":
+            self.db.add(PartnerProfile(user_id=user.id, org_name=""))
         self.db.commit()
         self.db.refresh(user)
-        token = create_access_token(user.id)
+        token = create_access_token(user.id, role=user_role)
         return {"access_token": token, "token_type": "bearer", "user": _to_user_dict(user)}

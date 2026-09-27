@@ -7,5 +7,8 @@ from app.models.profile import EntrepreneurProfile
 from app.models.requirement import Requirement
 from app.models.questionnaire_progress import QuestionnaireProgress
 from app.models.otp import OtpCode
+from app.models.partner_profile import PartnerProfile
+from app.models.partner_scheme import PartnerScheme
+from app.models.application import Application, ApplicationMessage
 
-__all__ = ["User", "EntrepreneurProfile", "Scheme", "ChannelPartner", "Requirement", "SavedScheme", "QuestionnaireProgress", "OtpCode", "SchemeExplanation"]
+__all__ = ["User", "EntrepreneurProfile", "Scheme", "ChannelPartner", "Requirement", "SavedScheme", "QuestionnaireProgress", "OtpCode", "SchemeExplanation", "PartnerProfile", "PartnerScheme", "Application", "ApplicationMessage"]

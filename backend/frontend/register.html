@@ -61,6 +61,11 @@
         <div id="formError" class="form-error hidden"></div>
         <div id="formNote" class="form-note hidden"></div>
 
+        <div class="flex gap-2 mb-4" role="tablist" aria-label="Account type">
+          <button type="button" id="tabUser" class="btn btn-secondary btn-sm flex-1" data-i18n="auth.register.type.user">Entrepreneur</button>
+          <button type="button" id="tabPartner" class="btn btn-ghost btn-sm flex-1" data-i18n="auth.register.type.partner">Channel partner</button>
+        </div>
+
         <form id="registerForm" novalidate>
           <p class="text-muted text-sm mb-3" data-i18n="auth.register.otp.hint">No password needed — we'll email you a code to create your account.</p>
           <div class="form-group">

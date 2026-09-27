@@ -7,6 +7,7 @@ class UserResponse(BaseModel):
     id: int
     email: EmailStr
     phone_number: str | None = None
+    role: str | None = "user"
     created_at: datetime | None = None
 
     class Config:
@@ -22,6 +23,7 @@ class TokenResponse(BaseModel):
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
     language: str | None = "en"
+    role: str | None = "user"
 
 
 class VerifyOtpRequest(BaseModel):
@@ -33,3 +35,4 @@ class SignupVerifyRequest(BaseModel):
     email: EmailStr
     otp: str
     phone_number: str = ""
+    role: str | None = "user"

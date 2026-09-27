@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff">
+  <title>My Applications - VittVanni</title>
+  <script>
+    (function () {
+      try {
+        var t = JSON.parse(localStorage.getItem('vittvanni:theme'));
+        document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+      } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+    })();
+  </script>
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/typography.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/themes.css">
+  <link rel="stylesheet" href="/css/accessibility.css">
+  <link rel="stylesheet" href="/css/print.css">
+</head>
+<body data-page="my-applications">
+  <header id="navbar"></header>
+  <main class="container" style="max-width:860px;padding-top:var(--space-5);padding-bottom:var(--space-7)">
+    <div id="appsMount"></div>
+  </main>
+  <footer id="siteFooter"></footer>
+
+  <script src="/js/services/storage.js"></script>
+  <script src="/js/services/theme.js"></script>
+  <script src="/js/i18n/translations.js"></script>
+  <script src="/js/services/i18n.js"></script>
+  <script src="/js/services/notifications.js"></script>
+  <script src="/js/services/validation.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/store.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/components/navbar.js"></script>
+  <script src="/js/components/footer.js"></script>
+  <script src="/js/components/chat.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script src="/js/pages/my-applications.js"></script>
+</body>
+</html>

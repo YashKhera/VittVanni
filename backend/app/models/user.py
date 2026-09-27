@@ -13,6 +13,7 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     phone_number = Column(String(20), nullable=True, index=True)
     password_hash = Column(String(255), nullable=False)
+    role = Column(String(20), default="user", nullable=False)  # user | partner
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)

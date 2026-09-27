@@ -20,12 +20,12 @@
         return data;
       });
     },
-    requestSignupOtp: function (email) {
+    requestSignupOtp: function (email, role) {
       var lang = (window.I18n && I18n.current) ? I18n.current() : "en";
-      return API.post("/api/auth/otp/request-signup", { email: email, language: lang });
+      return API.post("/api/auth/otp/request-signup", { email: email, language: lang, role: role || "user" });
     },
-    signupWithOtp: function (email, otp, phone) {
-      return API.post("/api/auth/otp/verify-signup", { email: email, otp: otp, phone_number: phone || "" }).then(function (data) {
+    signupWithOtp: function (email, otp, phone, role) {
+      return API.post("/api/auth/otp/verify-signup", { email: email, otp: otp, phone_number: phone || "", role: role || "user" }).then(function (data) {
         if (data && data.access_token) {
           VStore.set(TOKEN_KEY, data.access_token);
         }
@@ -74,6 +74,12 @@
       if (!this.isLoggedIn()) {
         var path = window.location.pathname || "/";
         window.location.href = "/login?next=" + encodeURIComponent(path + window.location.search);
+        return;
+      }
+      // Partners land on their own dashboard, never the user flow.
+      var me = this.user();
+      if (me && me.role === "partner") {
+        window.location.href = dest("/partner");
         return;
       }
       API.get("/api/profile", this.token(), { skipAuthRedirect: true })
