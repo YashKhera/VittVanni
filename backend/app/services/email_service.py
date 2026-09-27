@@ -1,4 +1,5 @@
 import smtplib
+import traceback
 from email.message import EmailMessage
 
 from app.config import settings
@@ -33,5 +34,7 @@ def send_email(to: str, subject: str, body: str) -> bool:
                     server.login(username, password)
                 server.send_message(msg)
         return True
-    except Exception:
+    except Exception as exc:
+        print(f"[EMAIL] send failed to {to}: {type(exc).__name__}: {exc}")
+        print(traceback.format_exc())
         return False

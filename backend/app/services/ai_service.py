@@ -1,4 +1,6 @@
 import hashlib
+import json
+import re
 from typing import Optional
 
 from app.config import settings
@@ -25,6 +27,43 @@ class AIExplanationService:
     @staticmethod
     def _gemini_text(prompt: str) -> str:
         return call_gemini_text(prompt, max_tokens=1024)
+
+    @staticmethod
+    def _from_json(data) -> str:
+        """Extract plain prose from a decoded JSON value (str/list/dict)."""
+        if isinstance(data, str):
+            return data.strip()
+        if isinstance(data, list):
+            parts = [AIExplanationService._from_json(x) for x in data]
+            return " ".join(p for p in parts if p).strip()
+        if isinstance(data, dict):
+            for key in ("explanation", "text", "summary", "reason", "message", "content"):
+                value = data.get(key)
+                if isinstance(value, str) and value.strip():
+                    return value.strip()
+            for value in data.values():
+                s = AIExplanationService._from_json(value)
+                if s:
+                    return s
+        return ""
+
+    @staticmethod
+    def _clean_text(text: str) -> str:
+        """Force model output to plain prose; models sometimes return JSON."""
+        if not text:
+            return ""
+        t = text.strip()
+        if t.startswith("```"):
+            t = re.sub(r"^```(?:json)?\s*", "", t)
+            t = re.sub(r"\s*```$", "", t).strip()
+        if (t.startswith("{") and t.endswith("}")) or (t.startswith("[") and t.endswith("]")):
+            try:
+                extracted = AIExplanationService._from_json(json.loads(t))
+                if extracted:
+                    return extracted
+            except Exception:
+                pass
+        return t.strip()
 
     @staticmethod
     def criteria_key(profile: EntrepreneurProfile, matched_criteria: list[str]) -> str:
@@ -105,7 +144,12 @@ class AIExplanationService:
                              matched_criteria: list[str], language: str = "en") -> str:
         cached = self._cached_explanation(profile, scheme, matched_criteria, language)
         if cached:
-            return cached
+            cleaned = self._clean_text(cached)
+            if cleaned:
+                if cleaned != cached:
+                    self._store_explanation(profile, scheme, matched_criteria, language, cleaned)
+                return cleaned
+            # Cached value is unusable prose-wise: fall through and regenerate.
         if not self.enabled:
             return self._fallback(profile, scheme, matched_criteria, language)
         prompt = (
@@ -132,6 +176,7 @@ class AIExplanationService:
                 )
                 text = message.content[0].text
             explanation = text.strip() if text else self._fallback(profile, scheme, matched_criteria, language)
+            explanation = self._clean_text(explanation) or self._fallback(profile, scheme, matched_criteria, language)
             if explanation:
                 self._store_explanation(profile, scheme, matched_criteria, language, explanation)
             return explanation

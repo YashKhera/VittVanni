@@ -4,6 +4,7 @@
   if (!document.body || document.body.dataset.page !== "results") return;
 
   var match = null;
+  var profileInfo = {};
   var savedIdsFromServer = [];
   var matching = { savedIds: AppStore.getSavedIds() || [] };
   var filterTimer;
@@ -40,6 +41,17 @@
     return s.id || s.scheme_id || s["scheme_id"];
   }
 
+  function displayName() {
+    var pt = (profileInfo.project_type ||
+      (match && match.profile_summary && match.profile_summary.project_type) ||
+      "business").toLowerCase();
+    if (pt === "education") {
+      return profileInfo.full_name || (Auth.user() && Auth.user().email) || "";
+    }
+    return profileInfo.business_name || profileInfo.full_name ||
+      (Auth.user() && Auth.user().email) || "";
+  }
+
   function render(mount) {
     var savedSet = currentSavedSet();
 
@@ -69,7 +81,7 @@
       summary.innerHTML =
         '<div class="text-center mb-5">' +
         '<h2>' + I18n.t("results.title") + "</h2>" +
-        '<p class="text-muted">' + I18n.t("results.sub") + "</p>" +
+        '<p class="text-muted">' + I18n.t("results.sub", { name: displayName() }) + "</p>" +
         (pills ? '<p class="mt-3">' + pills + "</p>" : "") +
         "</div>";
     }
@@ -100,7 +112,7 @@
       '<div class="flex items-center justify-between mb-5">' +
       "<div>" +
       '<h2>' + I18n.t("results.title") + "</h2>" +
-      '<p class="text-muted mb-0">' + I18n.t("results.sub") + "</p>" +
+      '<p class="text-muted mb-0">' + I18n.t("results.sub", { name: displayName() }) + "</p>" +
       "</div>" +
       '<div class="flex items-center gap-2">' +
       '<input id="filterInput" type="search" class="no-print" style="min-width:200px" placeholder="' + I18n.t("results.search") + '"/>' +
@@ -214,7 +226,7 @@
     Skeleton.show(mount, 3);
 
     API.get("/api/profile", Auth.token(), { skipAuthRedirect: true })
-      .then(function () { afterProfile(mount); })
+      .then(function (p) { profileInfo = p || {}; afterProfile(mount); })
       .catch(function (err) {
         if (err && err.status === 404) {
           window.location.href = "/profile/edit";
