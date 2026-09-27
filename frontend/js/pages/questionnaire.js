@@ -732,6 +732,7 @@
     var sums = [savedOrDraft.summary_en, savedOrDraft.summary_hi, savedOrDraft.summary_loc];
     for (var i = 0; i < sums.length; i++) {
       if (sums[i] !== undefined && sums[i] !== null && typeof sums[i] !== "string") return false;
+      if (typeof sums[i] === "string" && sums[i].indexOf("[object Object]") !== -1) return false;
     }
     if (!savedOrDraft.summary_en) return false;
     if (savedOrDraft.bootKey !== undefined) return savedOrDraft.bootKey === understandFormKey(desc);

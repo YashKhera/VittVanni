@@ -104,7 +104,9 @@
   // "[object Object]"; anything unusable becomes "".
   function toText(v, lang) {
     if (v === undefined || v === null) return "";
-    if (typeof v === "string") return v;
+    // A previously rendered "[object Object]" may have been persisted as a
+    // literal string in old drafts — treat it as empty so it refetches.
+    if (typeof v === "string") return v.indexOf("[object Object]") === -1 ? v : "";
     if (Array.isArray(v)) {
       return v.map(function (x) { return toText(x, lang); })
         .filter(function (x) { return !!x; }).join(" ");
