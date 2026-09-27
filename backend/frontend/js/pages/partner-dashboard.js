@@ -209,21 +209,48 @@
     }).catch(function (e) { Notify.error(e.message); });
   }
 
+  var PARTNER_TYPES = ["sca", "psb", "rrb", "nbfc_mfi", "other"];
+
+  function optLabel(o) {
+    if (!o) return "";
+    if (typeof o === "string") return o;
+    return o[I18n.current()] || o.en || "";
+  }
+
   function renderProfile() {
     var body = el("tabBody");
     body.innerHTML = '<div class="text-center py-4"><div class="spinner"></div></div>';
     api("/profile").then(function (p) {
+      var states = ((window.Questions && Questions.states) || []).filter(function (s) { return s.value !== "all"; });
+      var stateOpts = '<option value="">—</option>' + states.map(function (s) {
+        return '<option value="' + s.value + '"' + (p.state === s.value ? " selected" : "") + ">" + esc(optLabel(s)) + "</option>";
+      }).join("");
+      var typeOpts = PARTNER_TYPES.map(function (v) {
+        return '<option value="' + v + '"' + (p.partner_type === v ? " selected" : "") + ">" + esc(I18n.t("partner.type." + v)) + "</option>";
+      }).join("");
       body.innerHTML = '<div class="card"><h3>' + I18n.t("partner.tab.profile") + "</h3>" +
-        ["org_name", "partner_type", "phone", "state", "city", "address"].map(function (f) {
-          return '<div class="form-group"><label>' + I18n.t("partner.profile." + f) + "</label>" +
-            '<input type="text" id="pp_' + f + '" value="' + esc(p[f] || "") + '"></div>';
-        }).join("") +
+        '<div class="form-group"><label>' + I18n.t("partner.profile.org_name") + "</label>" +
+        '<input type="text" id="pp_org_name" value="' + esc(p.org_name || "") + '"></div>' +
+        '<div class="form-group"><label>' + I18n.t("partner.profile.partner_type") + "</label>" +
+        '<select id="pp_partner_type" class="form-select">' + typeOpts + "</select></div>" +
+        '<div class="form-group"><label>' + I18n.t("partner.profile.phone") + "</label>" +
+        '<input type="text" id="pp_phone" value="' + esc(p.phone || "") + '"></div>' +
+        '<div class="form-group"><label>' + I18n.t("partner.profile.state") + "</label>" +
+        '<select id="pp_state" class="form-select">' + stateOpts + "</select></div>" +
+        '<div class="form-group"><label>' + I18n.t("partner.profile.city") + "</label>" +
+        '<input type="text" id="pp_city" value="' + esc(p.city || "") + '"></div>' +
+        '<div class="form-group"><label>' + I18n.t("partner.profile.address") + "</label>" +
+        '<input type="text" id="pp_address" value="' + esc(p.address || "") + '"></div>' +
         '<button class="btn btn-primary btn-block" id="saveProfileBtn">' + I18n.t("common.save") + "</button></div>";
       el("saveProfileBtn").addEventListener("click", function () {
-        var payload = {};
-        ["org_name", "partner_type", "phone", "state", "city", "address"].forEach(function (f) {
-          payload[f] = el("pp_" + f).value.trim();
-        });
+        var payload = {
+          org_name: el("pp_org_name").value.trim(),
+          partner_type: el("pp_partner_type").value,
+          phone: el("pp_phone").value.trim(),
+          state: el("pp_state").value,
+          city: el("pp_city").value.trim(),
+          address: el("pp_address").value.trim()
+        };
         API.put("/api/partner/profile", payload, Auth.token())
           .then(function () {
             Notify.success(I18n.t("common.saved"));

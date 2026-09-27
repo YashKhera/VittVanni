@@ -424,4 +424,9 @@ window.Translations.pa = {
   "partner.viewApps": "ਅਰਜ਼ੀਆਂ ਵੇਖੋ",
   "apply.partner.handled": "{n} ਅਰਜ਼ੀਆਂ ਸੰਭਾਲੀਆਂ",
   "apply.partner.unnamed": "ਚੈਨਲ ਪਾਰਟਨਰ",
+  "partner.type.sca": "ਰਾਜ ਚੈਨਲ ਏਜੰਸੀ",
+  "partner.type.psb": "ਸਰਕਾਰੀ ਬੈਂਕ",
+  "partner.type.rrb": "ਖੇਤਰੀ ਦਿਹਾਤੀ ਬੈਂਕ",
+  "partner.type.nbfc_mfi": "NBFC / ਮਾਈਕ੍ਰੋਫਾਇਨਾਂਸ",
+  "partner.type.other": "ਹੋਰ",
 };

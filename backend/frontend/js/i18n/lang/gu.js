@@ -424,4 +424,9 @@ window.Translations.gu = {
   "partner.viewApps": "અરજીઓ જુઓ",
   "apply.partner.handled": "{n} અરજીઓ સંભાળી",
   "apply.partner.unnamed": "ચેનલ પાર્ટનર",
+  "partner.type.sca": "રાજ્ય ચેનલ એજન્સી",
+  "partner.type.psb": "જાહેર ક્ષેત્રની બેંક",
+  "partner.type.rrb": "પ્રાદેશિક ગ્રામીણ બેંક",
+  "partner.type.nbfc_mfi": "NBFC / માઇક્રોફાઇનાન્સ",
+  "partner.type.other": "અન્ય",
 };

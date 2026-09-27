@@ -84,8 +84,17 @@ def update_profile(
     current_user: User = Depends(require_partner),
     db: Session = Depends(get_db),
 ):
+    from fastapi import HTTPException, status as http_status
+
     svc = ApplicationService(db)
     profile = svc._partner_profile(current_user)
+    if payload.partner_type is not None and payload.partner_type not in (
+        "sca", "psb", "rrb", "nbfc_mfi", "other",
+    ):
+        raise HTTPException(
+            status_code=http_status.HTTP_400_BAD_REQUEST,
+            detail="Invalid partner type",
+        )
     for field in ("org_name", "partner_type", "phone", "state", "city", "address"):
         value = getattr(payload, field)
         if value is not None:
