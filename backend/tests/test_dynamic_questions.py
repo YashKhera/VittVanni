@@ -197,10 +197,11 @@ class ApiTestCase(unittest.TestCase):
         return f"dyn_{ApiTestCase._counter}@example.com"
 
     def _token(self):
+        from unittest import mock
         email = self._email()
-        r = self.client.post("/api/auth/register", json={"email": email, "password": "StrongPass123"})
-        if r.status_code != 200:
-            r = self.client.post("/api/auth/login", json={"email": email, "password": "StrongPass123"})
+        with mock.patch("app.services.auth_service.secrets.randbelow", return_value=424242):
+            self.client.post("/api/auth/otp/request-signup", json={"email": email})
+        r = self.client.post("/api/auth/otp/verify-signup", json={"email": email, "otp": "424242"})
         return r.json()["access_token"]
 
     def _headers(self, token):

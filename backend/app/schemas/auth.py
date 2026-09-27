@@ -1,17 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
-
-
-class RegisterRequest(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
-    phone_number: str = ""
-
-
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
+from pydantic import BaseModel, EmailStr
 
 
 class UserResponse(BaseModel):
@@ -40,6 +29,7 @@ class VerifyOtpRequest(BaseModel):
     otp: str
 
 
-class ResetPasswordRequest(BaseModel):
-    token: str
-    new_password: str = Field(min_length=8, max_length=128)
+class SignupVerifyRequest(BaseModel):
+    email: EmailStr
+    otp: str
+    phone_number: str = ""

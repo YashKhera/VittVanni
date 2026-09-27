@@ -19,7 +19,7 @@
 
   function installAuthLangSwitch() {
     var page = document.body.dataset && document.body.dataset.page;
-    if (page !== "login" && page !== "register" && page !== "reset-password") return;
+    if (page !== "login" && page !== "register") return;
     var s = document.createElement("select");
     s.id = "authLangSelect";
     s.innerHTML = I18n.optionsHtml();

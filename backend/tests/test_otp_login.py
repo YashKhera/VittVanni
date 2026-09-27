@@ -34,10 +34,13 @@ class OtpLoginApiTestCase(unittest.TestCase):
             pass
 
     def _register(self):
+        from unittest import mock
         type(self)._n += 1
         email = f"otp_user_{type(self)._n}@example.com"
-        r = self.client.post("/api/auth/register",
-                             json={"email": email, "password": "StrongPass123"})
+        with mock.patch("app.services.auth_service.secrets.randbelow", return_value=424242):
+            r = self.client.post("/api/auth/otp/request-signup", json={"email": email})
+        self.assertEqual(r.status_code, 200)
+        r = self.client.post("/api/auth/otp/verify-signup", json={"email": email, "otp": "424242"})
         self.assertEqual(r.status_code, 200)
         return email
 
@@ -83,24 +86,28 @@ class TestOtpLogin(OtpLoginApiTestCase):
         self.assertEqual(r2.status_code, 400)
 
     def test_reset_otp_does_not_log_in(self):
-        # Purpose isolation: a password-reset code is useless for login.
-        email = self._register()
-        self.client.post("/api/auth/forgot-password", json={"email": email})
+        # Purpose isolation: a signup code is useless for login.
+        from unittest import mock
+        email = f"iso_user_{type(self)._n}@example.com"
+        with mock.patch("app.services.auth_service.secrets.randbelow", return_value=111111):
+            r = self.client.post("/api/auth/otp/request-signup", json={"email": email})
+        self.assertEqual(r.status_code, 200)
         from app.models.otp import OtpCode
         db = SessionLocal()
         try:
             row = db.query(OtpCode).filter(
-                OtpCode.email == email, OtpCode.purpose == "password_reset").first()
+                OtpCode.email == email, OtpCode.purpose == "signup").first()
             self.assertIsNotNone(row)
         finally:
             db.close()
-        r = self.client.post("/api/auth/otp/login", json={"email": email, "otp": "123456"})
-        self.assertIn(r.status_code, (400, 401))
+        r = self.client.post("/api/auth/otp/login", json={"email": email, "otp": "111111"})
+        self.assertIn(r.status_code, (400, 401, 404))
 
-    def test_password_login_still_works(self):
+    def test_signup_then_login_works(self):
         email = self._register()
-        r = self.client.post("/api/auth/login",
-                             json={"email": email, "password": "StrongPass123"})
+        code = self._request_code(email)
+        r = self.client.post("/api/auth/otp/login",
+                             json={"email": email, "otp": code})
         self.assertEqual(r.status_code, 200)
         self.assertIn("access_token", r.json())
 

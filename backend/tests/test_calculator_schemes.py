@@ -45,9 +45,12 @@ class CalculatorSchemesApiTestCase(unittest.TestCase):
             pass
 
     def _token(self):
+        from unittest import mock
         type(self)._n += 1
         email = f"calc_schemes_user_{type(self)._n}@example.com"
-        r = self.client.post("/api/auth/register", json={"email": email, "password": "StrongPass123"})
+        with mock.patch("app.services.auth_service.secrets.randbelow", return_value=424242):
+            self.client.post("/api/auth/otp/request-signup", json={"email": email})
+        r = self.client.post("/api/auth/otp/verify-signup", json={"email": email, "otp": "424242"})
         self.assertEqual(r.status_code, 200)
         return r.json()["access_token"]
 

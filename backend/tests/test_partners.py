@@ -44,10 +44,16 @@ class PartnerApiTestCase(unittest.TestCase):
             pass
 
     def _token(self):
+        from unittest import mock
         email = "partner_user@example.com"
-        r = self.client.post("/api/auth/register", json={"email": email, "password": "StrongPass123"})
+        with mock.patch("app.services.auth_service.secrets.randbelow", return_value=424242):
+            self.client.post("/api/auth/otp/request-signup", json={"email": email})
+        r = self.client.post("/api/auth/otp/verify-signup", json={"email": email, "otp": "424242"})
         if r.status_code != 200:
-            r = self.client.post("/api/auth/login", json={"email": email, "password": "StrongPass123"})
+            # Account already exists (repeat runs): log in instead.
+            with mock.patch("app.services.auth_service.secrets.randbelow", return_value=424242):
+                self.client.post("/api/auth/otp/request", json={"email": email})
+            r = self.client.post("/api/auth/otp/login", json={"email": email, "otp": "424242"})
         return r.json()["access_token"]
 
     def _headers(self, token):

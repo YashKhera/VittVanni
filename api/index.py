@@ -74,7 +74,6 @@ SLUGS = {
     "partners": "partners.html",
     "profile": "profile-view.html",
     "profile/edit": "profile.html",
-    "reset-password": "reset-password.html",
     "oauth/callback": "oauth/callback.html",
 }
 

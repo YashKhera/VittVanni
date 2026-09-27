@@ -5,11 +5,12 @@
   var USER_KEY = "user";
 
   window.Auth = {
-    register: function (email, password, name, phone) {
-      return API.post("/api/auth/register", { email: email, password: password, name: name, phone_number: phone || "" });
+    requestLoginOtp: function (email) {
+      var lang = (window.I18n && I18n.current) ? I18n.current() : "en";
+      return API.post("/api/auth/otp/request", { email: email, language: lang });
     },
-    login: function (email, password) {
-      return API.post("/api/auth/login", { email: email, password: password }).then(function (data) {
+    loginWithOtp: function (email, otp) {
+      return API.post("/api/auth/otp/login", { email: email, otp: otp }).then(function (data) {
         if (data && data.access_token) {
           VStore.set(TOKEN_KEY, data.access_token);
         }
@@ -19,12 +20,12 @@
         return data;
       });
     },
-    requestLoginOtp: function (email) {
+    requestSignupOtp: function (email) {
       var lang = (window.I18n && I18n.current) ? I18n.current() : "en";
-      return API.post("/api/auth/otp/request", { email: email, language: lang });
+      return API.post("/api/auth/otp/request-signup", { email: email, language: lang });
     },
-    loginWithOtp: function (email, otp) {
-      return API.post("/api/auth/otp/login", { email: email, otp: otp }).then(function (data) {
+    signupWithOtp: function (email, otp, phone) {
+      return API.post("/api/auth/otp/verify-signup", { email: email, otp: otp, phone_number: phone || "" }).then(function (data) {
         if (data && data.access_token) {
           VStore.set(TOKEN_KEY, data.access_token);
         }
