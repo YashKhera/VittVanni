@@ -99,6 +99,22 @@
     document.documentElement.dir = meta.dir || "ltr";
   }
 
+  // Coerce any value to displayable text. Objects/arrays (stale drafts,
+  // unexpected API shapes) become their readable strings instead of
+  // "[object Object]"; anything unusable becomes "".
+  function toText(v, lang) {
+    if (v === undefined || v === null) return "";
+    if (typeof v === "string") return v;
+    if (Array.isArray(v)) {
+      return v.map(function (x) { return toText(x, lang); })
+        .filter(function (x) { return !!x; }).join(" ");
+    }
+    if (typeof v === "object") {
+      return toText(v[lang], lang) || toText(v.en, lang) || toText(v.hi, lang) || "";
+    }
+    return String(v);
+  }
+
   var bootLang = (function () {
     var stored = currentRaw();
     if (stored && LANGUAGES[stored]) return stored;
@@ -192,8 +208,10 @@
     summary: function (u) {
       if (!u) return "";
       var lang = this.current();
-      if (u.summary_loc) return u.summary_loc;
-      return lang === "hi" ? (u.summary_hi || u.summary_en || "") : (u.summary_en || u.summary_hi || "");
+      var loc = toText(u.summary_loc, lang);
+      if (loc) return loc;
+      if (lang === "hi") return toText(u.summary_hi, lang) || toText(u.summary_en, lang);
+      return toText(u.summary_en, lang) || toText(u.summary_hi, lang);
     },
 
     optionsHtml: function () {

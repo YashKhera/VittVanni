@@ -726,7 +726,14 @@
   }
 
   function draftMatches(savedOrDraft, desc) {
-    if (!savedOrDraft || !savedOrDraft.summary_en) return false;
+    if (!savedOrDraft) return false;
+    // Reject stale/foreign draft shapes (non-string summaries) so they are
+    // refetched clean instead of rendering as "[object Object]".
+    var sums = [savedOrDraft.summary_en, savedOrDraft.summary_hi, savedOrDraft.summary_loc];
+    for (var i = 0; i < sums.length; i++) {
+      if (sums[i] !== undefined && sums[i] !== null && typeof sums[i] !== "string") return false;
+    }
+    if (!savedOrDraft.summary_en) return false;
     if (savedOrDraft.bootKey !== undefined) return savedOrDraft.bootKey === understandFormKey(desc);
     return savedOrDraft.description === desc;
   }
@@ -767,9 +774,10 @@
   }
 
   function renderUnderstandingResult(mount, u, confirmed) {
+    u = u || {};
     var summary = understandingSummary(u) || I18n.t("questionnaire.understand.noSummary");
-    var sector = sectorLabel(u.sector);
-    var tags = u.tags || [];
+    var sector = sectorLabel(typeof u.sector === "string" ? u.sector : "");
+    var tags = Array.isArray(u.tags) ? u.tags : [];
     var empty = "";
     if (!summary) empty = " empty-result";
 
