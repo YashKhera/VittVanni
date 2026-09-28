@@ -27,15 +27,36 @@
   <style>
     .hero {
       display: block;
-      text-align: center;
       padding: var(--space-7) 0 var(--space-5);
-      max-width: 820px;
+      max-width: 1100px;
       margin: 0 auto;
       animation: fadeInUp var(--transition-slow) both;
+      position: relative;
+      overflow: hidden;
     }
-    .hero .badge {
-      margin-bottom: var(--space-4);
+    .hero-glow {
+      position: absolute;
+      width: 480px;
+      height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(102,126,234,.22) 0%, rgba(102,126,234,0) 65%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: opacity .3s ease;
+      z-index: 0;
     }
+    .hero-split {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: var(--space-6);
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    @media (max-width: 860px) { .hero-split { grid-template-columns: 1fr; } }
+    .hero-copy { text-align: left; }
+    @media (max-width: 860px) { .hero-copy { text-align: center; } }
+    .hero .badge { margin-bottom: var(--space-4); }
     .hero-title {
       font-size: clamp(2rem, 5vw, 3.2rem);
       margin-bottom: var(--space-4);
@@ -43,14 +64,54 @@
     .hero-subtitle {
       font-size: 1.1rem;
       color: var(--text-secondary);
-      margin: 0 auto var(--space-5);
-      max-width: 640px;
+      margin: 0 0 var(--space-5);
+      max-width: 560px;
     }
+    @media (max-width: 860px) { .hero-subtitle { margin-left: auto; margin-right: auto; } }
     .hero-actions {
       display: flex;
       gap: var(--space-3);
-      justify-content: center;
       flex-wrap: wrap;
+    }
+    @media (max-width: 860px) { .hero-actions { justify-content: center; } }
+    .hero-visual {
+      position: relative;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-orb {
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: var(--primary-gradient);
+      opacity: .9;
+      filter: blur(2px);
+      animation: orbFloat 7s ease-in-out infinite;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-18px) scale(1.04); }
+    }
+    .hero-chip {
+      position: absolute;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-2) var(--space-4);
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0,0,0,.12);
+      animation: chipFloat 6s ease-in-out infinite;
+      white-space: nowrap;
+    }
+    .hero-chip.c1 { top: 8%; left: 4%; animation-delay: 0s; }
+    .hero-chip.c2 { top: 38%; right: 2%; animation-delay: 1.4s; }
+    .hero-chip.c3 { bottom: 10%; left: 12%; animation-delay: 2.6s; }
+    @keyframes chipFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
     }
     .feature-card {
       background: var(--bg-secondary);
@@ -63,6 +124,72 @@
       flex-direction: column;
       justify-content: center;
     }
+    .chalkboard {
+      --chalk: #3a3a38;
+      background: transparent;
+      border-radius: var(--radius-lg);
+      padding: var(--space-6) var(--space-4);
+      color: var(--text-primary);
+      position: relative;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .chalkboard { --chalk: #f4f1e6; }
+    .chalkboard h3 { text-align: center; margin-bottom: var(--space-5); }
+    .chalk-flow { display: flex; align-items: flex-start; max-width: 1080px; margin: 0 auto; }
+    .chalk-node {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .5s ease, transform .5s ease;
+      transition-delay: var(--d, 0s);
+      font-family: "Segoe Print", "Comic Sans MS", cursive;
+    }
+    .chalkboard.drawn .chalk-node { opacity: 1; transform: none; }
+    .chalk-dot {
+      flex: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px dashed var(--chalk);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--chalk);
+      background: transparent;
+    }
+    .chalk-line {
+      flex: 0 0 28px;
+      height: 2px;
+      margin-top: 18px;
+      background-image: linear-gradient(90deg, var(--chalk) 55%, transparent 45%);
+      background-size: 10px 2px;
+      opacity: .7;
+    }
+    .chalk-node p { margin: 2px 0 0; color: var(--text-secondary); font-size: .92rem; font-family: inherit; }
+    .chalk-node strong { font-size: 1rem; }
+    @media (max-width: 860px) {
+      .chalk-flow { flex-direction: column; align-items: stretch; }
+      .chalk-node { flex-direction: row; text-align: left; align-items: flex-start; transform: translateX(-14px); }
+      .chalk-line { width: 2px; height: auto; min-height: 20px; margin: 0 0 0 18px; flex: none;
+        background-image: linear-gradient(var(--chalk) 55%, transparent 45%); background-size: 2px 10px; }
+    }
+    .stat-item { cursor: default; }
+    .partner-band {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6) var(--space-5);
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto;
+    }
   </style>
 </head>
 <body data-page="landing">
@@ -70,51 +197,55 @@
   <header id="navbar" class="navbar"></header>
 
   <section class="hero" aria-labelledby="heroHeading">
-    <span class="badge badge-primary" data-i18n="landing.hero.badge">100% free &amp; confidential</span>
-    <h1 id="heroHeading" class="hero-title">
-      <span data-i18n="landing.hero.h1" data-i18n-accent-class="gradient-text">Find the right government schemes for your business</span>
-    </h1>
-    <p class="hero-subtitle" data-i18n="landing.hero.sub">VittVanni matches India's government schemes to your unique profile.</p>
-    <div class="hero-actions">
-      <a href="/find-schemes" class="btn btn-primary btn-lg" data-i18n="landing.hero.cta">Start Matching</a>
-      <a href="#how" class="btn btn-secondary btn-lg" data-i18n="landing.hero.cta2">How it works</a>
+    <div class="hero-glow" data-hero-glow></div>
+    <div class="hero-split">
+      <div class="hero-copy">
+        <span class="badge badge-primary" data-i18n="landing.hero.badge">100% free &amp; confidential</span>
+        <h1 id="heroHeading" class="hero-title">
+          <span data-i18n="landing.hero.h1" data-i18n-accent-class="gradient-text">Find the right government schemes for your business</span>
+        </h1>
+        <p class="hero-subtitle" data-i18n="landing.hero.sub">VittVanni matches India's government schemes to your unique profile.</p>
+        <div class="hero-actions">
+          <a href="/find-schemes" class="btn btn-primary btn-lg" data-i18n="landing.hero.cta">Start Matching</a>
+          <a href="#how" class="btn btn-secondary btn-lg" data-i18n="landing.hero.cta2">How it works</a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="hero-orb"></div>
+        <div class="hero-chip c1" data-i18n="landing.hero.chip1">AI-matched schemes</div>
+        <div class="hero-chip c2" data-i18n="landing.hero.chip2">Apply in-portal</div>
+        <div class="hero-chip c3" data-i18n="landing.hero.chip3">23 languages</div>
+      </div>
     </div>
   </section>
 
   <main id="main">
-    <section class="section" id="how" aria-labelledby="howHeading">
-      <div class="section-heading">
-        <h2 id="howHeading" data-i18n="landing.how.title">How it works</h2>
-      </div>
-      <div class="steps-grid">
-        <div class="card step-card">
-          <div class="step-number">1</div>
-          <h3 data-i18n="landing.how.1.title">Tell us about yourself</h3>
-          <p class="mb-0" data-i18n="landing.how.1.text">Answer 9 simple questions about your business, location and background.</p>
-        </div>
-        <div class="card step-card">
-          <div class="step-number">2</div>
-          <h3 data-i18n="landing.how.2.title">We match you</h3>
-          <p class="mb-0" data-i18n="landing.how.2.text">Our engine scores 90+ schemes across 14 sectors using your answers.</p>
-        </div>
-        <div class="card step-card">
-          <div class="step-number">3</div>
-          <h3 data-i18n="landing.how.3.title">Get explanations</h3>
-          <p class="mb-0" data-i18n="landing.how.3.text">Clear reasons why each scheme fits — in your language, no jargon.</p>
-        </div>
-        <div class="card step-card">
-          <div class="step-number">4</div>
-          <h3 data-i18n="landing.how.4.title">Apply with confidence</h3>
-          <p class="mb-0" data-i18n="landing.how.4.text">Get documents, deadlines and a week-by-week application roadmap.</p>
-        </div>
-      </div>
-    </section>
-
     <section class="section" aria-labelledby="statsHeading">
       <div class="section-heading">
         <h2 id="statsHeading" data-i18n="landing.stats.title">Trusted by aspiring entrepreneurs</h2>
       </div>
       <div class="stats-grid" data-stat-grid></div>
+    </section>
+
+    <section class="section" id="how" aria-labelledby="howHeading">
+      <div class="section-heading">
+        <h2 id="howHeading" data-i18n="landing.how.title">How it works</h2>
+        <p class="text-muted" data-i18n="landing.how.sub">From questions to funded — without leaving the portal.</p>
+      </div>
+      <div class="chalkboard" data-chalkboard>
+        <h3 data-i18n="landing.flow.title">Your journey on the board</h3>
+        <div class="chalk-flow">
+          <div class="chalk-node" style="--d:.15s"><div class="chalk-dot">1</div><div><strong data-i18n="landing.flow.1.title">Tell us about yourself</strong><p data-i18n="landing.flow.1.text">Answer quick questions or just describe your business in words.</p></div></div>
+          <div class="chalk-line"></div>
+          <div class="chalk-node" style="--d:.55s"><div class="chalk-dot">2</div><div><strong data-i18n="landing.flow.2.title">Get matched schemes</strong><p data-i18n="landing.flow.2.text">AI scores every scheme against your profile, with plain reasons.</p></div></div>
+          <div class="chalk-line"></div>
+          <div class="chalk-node" style="--d:.95s"><div class="chalk-dot">3</div><div><strong data-i18n="landing.flow.3.title">Choose your channel partner</strong><p data-i18n="landing.flow.3.text">Pick a nearby partner who serves that exact scheme.</p></div></div>
+          <div class="chalk-line"></div>
+          <div class="chalk-node" style="--d:1.35s"><div class="chalk-dot">4</div><div><strong data-i18n="landing.flow.4.title">Apply inside the portal</strong><p data-i18n="landing.flow.4.text">One dynamic form per scheme — private IDs stay masked.</p></div></div>
+          <div class="chalk-line"></div>
+          <div class="chalk-node" style="--d:1.75s"><div class="chalk-dot">5</div><div><strong data-i18n="landing.flow.5.title">Track &amp; chat live</strong><p data-i18n="landing.flow.5.text">Watch your status and talk to your partner until approval.</p></div></div>
+        </div>
+      </div>
     </section>
 
     <section class="section" aria-labelledby="featuresHeading">
@@ -123,8 +254,8 @@
       </div>
       <div class="grid grid-auto">
         <div class="feature-card">
-          <h3 data-i18n="landing.features.1.title">Voice + text first</h3>
-          <p class="mb-0" data-i18n="landing.features.1.text">Filled in low-bandwidth friendly design, on any phone.</p>
+          <h3 data-i18n="landing.features.1.title">Apply inside the portal</h3>
+          <p class="mb-0" data-i18n="landing.features.1.text">No hopping across government sites — apply, track and chat here.</p>
         </div>
         <div class="feature-card">
           <h3 data-i18n="landing.features.2.title">23 languages</h3>
@@ -141,11 +272,22 @@
       </div>
     </section>
 
+    <section class="section" aria-labelledby="partnerHeading">
+      <div class="partner-band fade-in-up">
+        <h2 id="partnerHeading" data-i18n="landing.partner.title">Are you a channel partner?</h2>
+        <p class="text-muted" data-i18n="landing.partner.text">List the schemes you serve, receive applications from verified entrepreneurs, and approve them with live chat — all in one dashboard.</p>
+        <div class="hero-actions" style="justify-content:center">
+          <a href="/signup?role=partner" class="btn btn-primary btn-lg" data-i18n="landing.partner.cta">Become a Partner</a>
+          <a href="/login" class="btn btn-ghost" data-i18n="landing.partner.login">Partner login</a>
+        </div>
+      </div>
+    </section>
+
     <section class="section text-center" aria-labelledby="ctaHeading">
       <div class="card" style="max-width: 640px; margin: 0 auto;">
         <h2 id="ctaHeading" data-i18n="landing.cta.title">Ready to find your scheme?</h2>
         <p data-i18n="landing.cta.text">It takes less than 5 minutes.</p>
-        <div class="hero-actions">
+        <div class="hero-actions" style="justify-content:center">
           <a href="/find-schemes" class="btn btn-primary" data-i18n="landing.hero.cta">Start Matching</a>
           <a href="/login" class="btn btn-ghost" data-i18n="nav.login">Log in</a>
         </div>

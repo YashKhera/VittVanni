@@ -47,6 +47,17 @@ def filter_schemes(
     return SchemeListResponse(schemes=[_to_list_item(s) for s in schemes], total=total)
 
 
+@router.get("/stats")
+def public_stats(db: Session = Depends(get_db)):
+    """Public landing-page counters; no auth required."""
+    from app.models.partner_profile import PartnerProfile
+
+    return {
+        "schemes": db.query(Scheme).count(),
+        "partners": db.query(PartnerProfile).count(),
+    }
+
+
 @router.get("/{scheme_id}", response_model=SchemeDetail)
 def get_scheme(scheme_id: int, _: User = Depends(get_current_user), db: Session = Depends(get_db)):
     scheme = SchemeService(db).get(scheme_id)

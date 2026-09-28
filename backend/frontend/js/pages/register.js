@@ -117,6 +117,8 @@
     };
     el("tabUser").addEventListener("click", function () { setRole("user"); });
     el("tabPartner").addEventListener("click", function () { setRole("partner"); });
+    var params = window.readQuery ? window.readQuery() : {};
+    if (params && params.role === "partner") setRole("partner");
     var codeBox = el("otpCode");
     codeBox.addEventListener("input", function () {
       codeBox.value = codeBox.value.replace(/\D/g, "").slice(0, 6);
