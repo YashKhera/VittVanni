@@ -52,12 +52,11 @@
         html += '<div class="text-sm mt-3 mb-0"><strong>' + I18n.t("results.need") + ": </strong>" + this._esc(item.possible_gap) + "</div>";
       }
 
-      var loanCat = body.loan_category ? "&loan_category=" + encodeURIComponent(body.loan_category) : "";
       html +=
         '<div class="scheme-actions mt-4">' +
         '<a class="btn btn-secondary btn-sm" href="/scheme?id=' + encodeURIComponent(id) + '">' + I18n.t("common.viewDetails") + "</a>" +
+        '<a class="btn btn-primary btn-sm" href="/apply?sid=' + encodeURIComponent(id) + '">' + I18n.t("details.applyNow") + "</a>" +
         '<a class="btn btn-ghost btn-sm" href="/emi-calculator?scheme=' + encodeURIComponent(id) + '&autocalc=1" data-i18n="calculator.cta">' + I18n.t("calculator.cta") + "</a>" +
-        '<a class="btn btn-ghost btn-sm" href="/partners?scheme=' + encodeURIComponent(id) + loanCat + '">' + I18n.t("partners.find") + "</a>" +
         (opts.allowSave === false ? "" :
           '<button class="btn btn-sm ' + (opts.saved ? "btn-primary" : "btn-ghost") + '" data-save-scheme="' + encodeURIComponent(id) + '" aria-label="Save scheme">' + (opts.saved ? "★ " + I18n.t("common.saved") : "☆ " + I18n.t("common.save")) + "</button>") +
         (opts.allowRemove === true ?

@@ -48,7 +48,6 @@ class Handler(SimpleHTTPRequestHandler):
         "apply": "apply.html",
         "my-applications": "my-applications.html",
         "partner": "partner-dashboard.html",
-        "partners": "partners.html",
         "profile": "profile-view.html",
         "profile/edit": "profile.html",
         "oauth/callback": "oauth/callback.html",

@@ -14,7 +14,6 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 from app.database import Base, SessionLocal, engine  # noqa: E402
 from app.main import app  # noqa: E402
-from data.partners_seed import seed_partners  # noqa: E402
 from data.schemes_seed import seed_schemes  # noqa: E402
 
 
@@ -24,7 +23,6 @@ def _init_db():
     db = SessionLocal()
     try:
         seed_schemes(db)
-        seed_partners(db)
     finally:
         db.close()
 

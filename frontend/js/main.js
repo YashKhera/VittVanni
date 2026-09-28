@@ -4,7 +4,7 @@
   // Role gates: partners live in their portal, users in theirs.
   // Values match body[data-page] on each page.
   var USER_ONLY = ["questionnaire", "results", "scheme-details", "saved-schemes",
-    "profile", "profile-view", "apply", "my-applications", "partners"];
+    "profile", "profile-view", "apply", "my-applications"];
   function roleGate() {
     try {
       if (!window.Auth || !Auth.isLoggedIn() || !Auth.user()) return;

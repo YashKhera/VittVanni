@@ -10,7 +10,7 @@
       var isPartner = !!(u && u.role === "partner");
       var links = isPartner
         ? [["/partner", "nav.partnerDash"], ["/partner?tab=inbox", "partner.tab.inbox"], ["/partner?tab=profile", "partner.tab.profile"]]
-        : [["/find-schemes", "nav.questions"], ["/my-schemes", "nav.results"], ["/my-applications", "nav.applications"], ["/emi-calculator", "nav.calculator"], ["/partners", "nav.partners"]];
+        : [["/find-schemes", "nav.questions"], ["/my-schemes", "nav.results"], ["/my-applications", "nav.applications"], ["/emi-calculator", "nav.calculator"]];
       if (!loggedIn) links = [["/login", "nav.login"], ["/signup", "nav.register"]];
       el.innerHTML =
         '<footer class="footer no-print">' +

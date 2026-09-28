@@ -17,19 +17,15 @@ from starlette.staticfiles import StaticFiles  # noqa: E402
 
 from app.main import app as _api_app  # noqa: E402
 from data.schemes_seed import seed_schemes  # noqa: E402
-from data.partners_seed import seed_partners  # noqa: E402
 
 # Seed DB on first cold start
 if os.environ.get("VERCEL"):
     try:
         from app.database import SessionLocal
         from app.models.scheme import Scheme
-        from app.models.channel_partner import ChannelPartner
         with SessionLocal() as db:
             if db.query(Scheme).count() == 0:
                 seed_schemes(db)
-            if db.query(ChannelPartner).count() == 0:
-                seed_partners(db)
     except Exception as exc:
         print("DB bootstrap skipped:", exc)
 
@@ -51,8 +47,8 @@ async def _on_error(request: Request, exc: Exception):
 
 _api_app.add_exception_handler(Exception, _on_error)
 
-# Clean-URL support: serve /partners from partners.html (address bar stays
-# clean) and 301-redirect legacy .html URLs to their clean form.
+# Clean-URL support (address bar stays clean) and 301-redirect legacy
+# .html URLs to their clean form.
 _root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _static_dir = None
 for _d in ("backend/frontend", "frontend"):
@@ -74,7 +70,6 @@ SLUGS = {
     "apply": "apply.html",
     "my-applications": "my-applications.html",
     "partner": "partner-dashboard.html",
-    "partners": "partners.html",
     "profile": "profile-view.html",
     "profile/edit": "profile.html",
     "oauth/callback": "oauth/callback.html",

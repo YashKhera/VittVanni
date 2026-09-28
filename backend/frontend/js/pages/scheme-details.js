@@ -85,7 +85,6 @@
       '<div class="flex gap-2">' +
       '<button class="btn btn-primary btn-sm" id="saveBtn">' + (isSaved ? "★ " + I18n.t("common.saved") : "☆ " + I18n.t("common.save")) + "</button>" +
       '<a class="btn btn-secondary btn-sm" href="/emi-calculator?scheme=' + encodeURIComponent(scheme.id) + '&autocalc=1" data-i18n="calculator.cta">Calculate EMI for this scheme</a>' +
-      '<a class="btn btn-secondary btn-sm" href="/partners?scheme=' + encodeURIComponent(scheme.id) + (scheme.loan_category ? "&loan_category=" + encodeURIComponent(scheme.loan_category) : "") + '">' + esc(I18n.t("partners.find")) + "</a>" +
       '<a class="btn btn-secondary btn-sm" href="/my-schemes" data-i18n="details.back">Back to results</a>' +
       "</div></div>" +
       '<p class="text-muted mb-0 text-sm">' + esc(cap(scheme.government_level || "")) + " · " + esc(listOf(scheme.sectors).join(", ") || "All sectors") + "</p>" +

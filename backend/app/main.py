@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import Base, engine
-from app.routers import auth, calculator, partners, preferences, profile, questionnaire, recommendations, saved, schemes, understanding, applications, partner_portal
+from app.routers import auth, calculator, preferences, profile, questionnaire, recommendations, saved, schemes, understanding, applications, partner_portal
 
 Base.metadata.create_all(bind=engine)
 
@@ -40,7 +40,6 @@ app.include_router(saved.router, prefix="/api", tags=["saved"])
 app.include_router(preferences.router, prefix="/api", tags=["preferences"])
 app.include_router(understanding.router, prefix="/api", tags=["ai-understanding"])
 app.include_router(calculator.router, prefix="/api", tags=["calculator"])
-app.include_router(partners.router, prefix="/api", tags=["partners"])
 app.include_router(applications.router, prefix="/api", tags=["applications"])
 app.include_router(partner_portal.router, prefix="/api", tags=["partner"])
 

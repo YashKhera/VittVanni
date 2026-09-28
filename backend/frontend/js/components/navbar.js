@@ -67,7 +67,6 @@
       { href: "/my-schemes", key: "nav.results" },
       { href: "/my-applications", key: "nav.applications" },
       { href: "/emi-calculator", key: "nav.calculator" },
-      { href: "/partners", key: "nav.partners" },
       { href: "/saved", key: "nav.saved" },
       { href: "/profile", key: "nav.profile" }
     ];
